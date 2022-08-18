@@ -1,7 +1,7 @@
 {
   "name": "@wdio/chrome-recorder",
   "version": "0.1.4",
-  "description": "Generate WebdriverIO Tests from Google Chrome DevTools Recordings",
+  "description": "Generate WebdriverIO Tests from Google Chrome DevTools Recordings.",
   "main": "dist/index.js",
   "bin": "bin/wdio-chrome-recorder.js",
   "files": [
@@ -16,8 +16,7 @@
     "lint": "eslint '**/*.{js,ts}' --fix .",
     "prettier": "prettier --write .",
     "format": "npm run lint && npm run prettier",
-    "test": "mocha --config .mocharc.cjs",
-    "docs": "npx typedoc --readme none --gitRevision main --externalPattern --excludeExternals --excludeProtected --excludePrivate --plugin typedoc-plugin-markdown --out docs/ src/main.ts && npm run format"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -49,6 +48,7 @@
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "release-it": "^15.3.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4",
     "vitest": "^0.22.1"
