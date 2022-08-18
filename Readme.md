@@ -161,3 +161,7 @@ If the step type is not mentioned above, a warning will be shown.
 
 [npm-badge]: https://img.shields.io/npm/v/@wdio/chrome-recorder.svg
 [npm]: https://www.npmjs.com/package/@wdio/chrome-recorder
+
+---
+
+For more information on WebdriverIO see the [homepage](https://webdriver.io). The initial implementation was inspired by [Nightwatch Chrome Recorder](https://github.com/nightwatchjs/nightwatch-chrome-recorder)
