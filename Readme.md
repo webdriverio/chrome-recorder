@@ -1,7 +1,6 @@
-# WebdriverIO Chrome Recorder
-
-[![Build](https://github.com/webdriverio/chrome-recorder/actions/workflows/test.yml/badge.svg)](https://github.com/webdriverio/chrome-recorder/actions/workflows/build.yml)
+WebdriverIO Chrome Recorder [![Build](https://github.com/webdriverio/chrome-recorder/actions/workflows/test.yml/badge.svg)](https://github.com/webdriverio/chrome-recorder/actions/workflows/build.yml)
 [![npm][npm-badge]][npm]
+===========================
 
 This repo provide tools to convert JSON user flows from [Google Chrome DevTools Recorder](https://goo.gle/devtools-recorder) to WebdriverIO test scripts programmatically.
 
@@ -10,11 +9,7 @@ This repo provide tools to convert JSON user flows from [Google Chrome DevTools 
 💃 Users can also use a dry run to see the interim output of the recordings  
 👨‍💻 Programmatic API which users can use in their own project to create plugins or custom scripts.
 
-Alternatively, you can export JSON user flows as WebdriverIO test scripts straight away from Chrome DevTools with our [WebdriverIO Recorder Chrome extension](https://chrome.google.com/webstore/detail/webdriverio-chrome-recorder/nhbccjfogdgkahamfohokdhcnemjafjk/). 
-
-## 📹 Demo
-
-tbd
+Alternatively, you can export JSON user flows as WebdriverIO test scripts straight away from Chrome DevTools with our [WebdriverIO Recorder Chrome extension](https://webdriver.io). 
 
 ## 🏗 Installation
 
@@ -92,10 +87,6 @@ console.log(stringifiedContent);
 //   });
 // });
 ```
-
-## 📝 Documentation
-
-tbd
 
 ## 🐛 Issues
 
