@@ -1,6 +1,6 @@
 {
   "name": "@wdio/chrome-recorder",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generate WebdriverIO Tests from Google Chrome DevTools Recordings.",
   "main": "dist/index.js",
   "bin": "bin/wdio-chrome-recorder.js",
