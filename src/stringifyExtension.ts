@@ -24,17 +24,17 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     }
 
     async beforeAllSteps(out: LineWriter, flow: UserFlow): Promise<void> {
-        out.appendLine(
-            `describe(${this.#formatAsJSLiteral(flow.title)}, function () {`,
-        )
         out
-            .appendLine(`it(${this.#formatAsJSLiteral(`tests ${flow.title}`)}, function (browser) {`)
+            .appendLine(`describe(${this.#formatAsJSLiteral(flow.title)}, function () {`)
+            .startBlock()
+        out
+            .appendLine(`it(${this.#formatAsJSLiteral(`tests ${flow.title}`)}, function () {`)
             .startBlock()
     }
 
     async afterAllSteps(out: LineWriter): Promise<void> {
-        out.appendLine('});').endBlock()
-        out.appendLine('});')
+        out.endBlock().appendLine('});')
+        out.endBlock().appendLine('});')
     }
 
     async stringifyStep(
@@ -79,7 +79,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     }
 
     #appendViewportStep(out: LineWriter, step: SetViewportStep): void {
-        out.appendLine(`browser.setWindowSize(${step.width}, ${step.height})`)
+        out.appendLine(`await browser.setWindowSize(${step.width}, ${step.height})`)
     }
 
     #appendClickStep(out: LineWriter, step: ClickStep, flow: UserFlow): void {

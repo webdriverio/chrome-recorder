@@ -20,7 +20,7 @@ describe('StringifyExtension', () => {
         const flow = { title: 'setViewport step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
-        expect(writer.toString()).toBe('browser.setWindowSize(1905, 223)\n')
+        expect(writer.toString()).toBe('await browser.setWindowSize(1905, 223)\n')
     })
 
     it('should correctly exports navigate step', async () => {
