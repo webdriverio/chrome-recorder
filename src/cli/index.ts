@@ -2,7 +2,7 @@ import meow from 'meow';
 import inquirer from 'inquirer';
 import { InquirerAnswerTypes } from '../types';
 import { expandedFiles } from '../utils.js';
-import { defaultOutputFolder } from '../constants.js';
+import { DEFAULT_OUTPUT_FOLDER } from '../constants.js';
 import { runTransformsOnChromeRecording } from '../transform.js';
 
 const cli = meow(
@@ -54,7 +54,7 @@ inquirer
       name: 'outputPath',
       message: 'Where should be exported files to be output?',
       when: () => !cli.input.length,
-      default: defaultOutputFolder,
+      default: DEFAULT_OUTPUT_FOLDER,
     },
   ])
   .then((answers: InquirerAnswerTypes) => {
@@ -73,7 +73,7 @@ inquirer
 
     return runTransformsOnChromeRecording({
       files: filesExpanded,
-      outputPath: outputPath ?? defaultOutputFolder,
+      outputPath: outputPath ?? DEFAULT_OUTPUT_FOLDER,
       flags: cli.flags,
     });
   })

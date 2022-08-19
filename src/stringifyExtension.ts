@@ -1,3 +1,4 @@
+import { format } from 'node:util'
 import {
   ChangeStep,
   ClickStep,
@@ -16,7 +17,7 @@ import {
   UserFlow,
   WaitForElementStep,
 } from '@puppeteer/replay';
-import { SupportedKeys, DowncaseKeys } from './types.js';
+import { SUPPORTED_KEYS, KEY_NOT_SUPPORTED_ERROR } from './constants.js';
 
 export class StringifyExtension extends PuppeteerStringifyExtension {
   #formatAsJSLiteral(value: string) {
@@ -33,7 +34,6 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
   }
 
   async afterAllSteps(out: LineWriter): Promise<void> {
-    this.#appendEndStep(out);
     out.appendLine('});').endBlock();
     out.appendLine('});');
   }
@@ -104,44 +104,47 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
   }
 
   #appendKeyDownStep(out: LineWriter, step: KeyDownStep): void {
-    const pressedKey = step.key.toLowerCase() as DowncaseKeys;
+    const pressedKey = step.key.toLowerCase() as keyof typeof SUPPORTED_KEYS;
 
-    if (pressedKey in SupportedKeys) {
-      const keyValue = SupportedKeys[pressedKey];
-      out.appendLine(
-        `.perform(function() {
-          const actions = this.actions({async: true});
-
-          return actions
-          .keyDown(this.Keys.${keyValue});
-        })`,
-      );
+    if (!SUPPORTED_KEYS[pressedKey]) {
+      return console.error(format(KEY_NOT_SUPPORTED_ERROR, pressedKey))
     }
+
+    const keyValue = SUPPORTED_KEYS[pressedKey];
+    out.appendLine([
+      'await browser.performActions([{\n' +
+      '  type: \'key\',\n' +
+      '  id: \'keyboard\',\n' +
+      `  actions: [{ type: 'keyDown', value: '${keyValue}' }]\n` +
+      '}])'
+    ].join('\n'))
   }
 
   #appendKeyUpStep(out: LineWriter, step: KeyUpStep): void {
-    const pressedKey = step.key.toLowerCase() as DowncaseKeys;
+    const pressedKey = step.key.toLowerCase() as keyof typeof SUPPORTED_KEYS;
 
-    if (pressedKey in SupportedKeys) {
-      const keyValue = SupportedKeys[pressedKey];
-      out.appendLine(
-        `.perform(function() {
-          const actions = this.actions({async: true});
-
-          return actions
-          .keyUp(this.Keys.${keyValue});
-        })`,
-      );
+    if (!SUPPORTED_KEYS[pressedKey]) {
+      return console.error(format(KEY_NOT_SUPPORTED_ERROR, pressedKey))
     }
+
+    const keyValue = SUPPORTED_KEYS[pressedKey];
+    out.appendLine([
+      'await browser.performActions([{\n' +
+      '  type: \'key\',\n' +
+      '  id: \'keyboard\',\n' +
+      `  actions: [{ type: 'keyUp', value: '${keyValue}' }]\n` +
+      '}])'
+    ].join('\n'))
   }
 
   #appendScrollStep(out: LineWriter, step: ScrollStep, flow: UserFlow): void {
     if ('selectors' in step) {
       const domSelector = this.getSelector(step.selectors, flow);
-      out.appendLine(`.moveToElement(${domSelector}, 0, 0)`);
-    } else {
-      out.appendLine(`.execute('scrollTo(${step.x}, ${step.y})')`);
+      out.appendLine(`await browser.$(${domSelector}).moveTo()`);
+      return
     }
+
+    out.appendLine(`await browser.execute(() => window.scrollTo(${step.x}, ${step.y}))`);
   }
 
   #appendDoubleClickStep(
@@ -151,38 +154,41 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
   ): void {
     const domSelector = this.getSelector(step.selectors, flow);
 
-    if (domSelector) {
-      out.appendLine(`.doubleClick(${domSelector})`);
-    } else {
+    if (!domSelector) {
       console.log(
         `Warning: The click on ${step.selectors} was not able to be exported to WebdriverIO. Please adjust your selectors and try again.`,
       );
+      return;
     }
+
+    out.appendLine(`await browser.$(${domSelector}).doubleClick()`);
   }
 
   #appendHoverStep(out: LineWriter, step: HoverStep, flow: UserFlow): void {
     const domSelector = this.getSelector(step.selectors, flow);
 
-    if (domSelector) {
-      out.appendLine(`.moveToElement(${domSelector}, 0, 0)`);
-    } else {
+    if (!domSelector) {
       console.log(
         `Warning: The Hover on ${step.selectors} was not able to be exported to WebdriverIO. Please adjust your selectors and try again.`,
       );
+      return
     }
+
+    out.appendLine(`await browser.$(${domSelector}).moveTo()`);
   }
 
   #appendEmulateNetworkConditionsStep(
     out: LineWriter,
     step: EmulateNetworkConditionsStep,
   ): void {
-    out.appendLine(`
-    .setNetworkConditions({
-      offline: false,
-      latency: ${step.latency},
-      download_throughput: ${step.download},
-      upload_throughput: ${step.upload}
-    })`);
+    out.appendLine([
+      'await browser.setNetworkConditions({\n' +
+      '  offline: false,\n' +
+      `  latency: ${step.latency},\n` +
+      `  download_throughput: ${step.download},\n` +
+      `  upload_throughput: ${step.upload}\n` +
+      '})'
+    ].join('\n'));
   }
 
   #appendWaitForElementStep(
@@ -191,41 +197,26 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     flow: UserFlow,
   ): void {
     const domSelector = this.getSelector(step.selectors, flow);
-    let assertionStatement;
-    if (domSelector) {
-      switch (step.operator) {
-        case '<=':
-          assertionStatement = `browser.elements('css selector', ${domSelector}, function (result) {
-            browser.assert.ok(result.value.length <= ${step.count}, 'element count is less than ${step.count}');
-          });`;
-          break;
-        case '==':
-          assertionStatement = `browser.expect.elements(${domSelector}).count.to.equal(${step.count});`;
-          break;
-        case '>=':
-          assertionStatement = `browser.elements('css selector', ${domSelector}, function (result) {
-            browser.assert.ok(result.value.length >= ${step.count}, 'element count is greater than ${step.count}');
-          });`;
-          break;
-      }
-      out.appendLine(`
-      .waitForElementVisible(${domSelector}, ${
-        step.timeout ? `${step.timeout}, ` : ''
-      }function(result) {
-        if (result.value) {
-          ${assertionStatement}
-        }
-      })
-      `);
-    } else {
+
+    if (!domSelector) {
       console.log(
         `Warning: The WaitForElement on ${step.selectors} was not able to be exported to WebdriverIO. Please adjust your selectors and try again.`,
       );
     }
-  }
 
-  #appendEndStep(out: LineWriter): void {
-    out.appendLine(`.end();`);
+    const opts = step.timeout ? `{ timeout: ${step.timeout} }` : ''
+    out.appendLine(`await browser.$(${domSelector}).waitForExist(${opts})`)
+    switch (step.operator) {
+      case '<=':
+        out.appendLine(`await expect(browser.$(${domSelector})).toBeElementsArrayOfSize({ lte: ${step.count} })`)
+        break;
+      case '==':
+        out.appendLine(`await expect(browser.$(${domSelector})).toBeElementsArrayOfSize(${step.count})`)
+        break;
+      case '>=':
+        out.appendLine(`await expect(browser.$(${domSelector})).toBeElementsArrayOfSize({ gte: ${step.count} })`)
+        break;
+    }
   }
 
   getSelector(selectors: Selector[], flow: UserFlow): string | undefined {

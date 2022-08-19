@@ -6,7 +6,7 @@ import { StringifyExtension } from '../src/stringifyExtension.js';
 
 
 describe('StringifyExtension', () => {
-  it.skip('should correctly exports setViewport step', async () => {
+  it('should correctly exports setViewport step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'setViewport' as const,
@@ -18,15 +18,12 @@ describe('StringifyExtension', () => {
       isLandscape: false,
     };
     const flow = { title: 'setViewport step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-    expect(writer.toString()).to.equal(
-      'browser.windowRect({width: 1905, height: 223})\n',
-    );
+    expect(writer.toString()).toBe('browser.setWindowSize(1905, 223)\n');
   });
 
-  it.skip('should correctly exports navigate step', async () => {
+  it('should correctly exports navigate step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'navigate' as const,
@@ -40,15 +37,12 @@ describe('StringifyExtension', () => {
       ],
     };
     const flow = { title: 'navigate step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-    expect(writer.toString()).to.equal(
-      '.navigateTo("chrome://new-tab-page/")\n',
-    );
+    expect(writer.toString()).toBe('await browser.url("chrome://new-tab-page/")\n');
   });
 
-  it.skip('should correctly exports click step', async () => {
+  it('should correctly exports click step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'click' as const,
@@ -58,14 +52,12 @@ describe('StringifyExtension', () => {
       offsetY: 1,
     };
     const flow = { title: 'click step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal('.click("#test")\n');
+    expect(writer.toString()).toBe('await browser.$("#test").click()\n');
   });
 
-  it.skip('should correctly exports change step', async () => {
+  it('should correctly exports change step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'change' as const,
@@ -74,14 +66,12 @@ describe('StringifyExtension', () => {
       target: 'main',
     };
     const flow = { title: 'change step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal('.setValue("#heading", "webdriverio")\n');
+    expect(writer.toString()).toBe('await browser.$("#heading").setValue("webdriverio")\n');
   });
 
-  it.skip('should correctly exports keyDown step', async () => {
+  it('should correctly exports keyDown step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'keyDown' as const,
@@ -96,21 +86,18 @@ describe('StringifyExtension', () => {
       ],
     };
     const flow = { title: 'keyDown step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(
-      `.perform(function() {
-          const actions = this.actions({async: true});
-
-          return actions
-          .keyDown(this.Keys.ENTER);
-        })\n`,
+    expect(writer.toString()).toBe(
+      'await browser.performActions([{\n' +
+      '  type: \'key\',\n' +
+      '  id: \'keyboard\',\n' +
+      '  actions: [{ type: \'keyDown\', value: \'ENTER\' }]\n' +
+      '}])\n'
     );
   });
 
-  it.skip('should handle keyDown step when key is not supported', async () => {
+  it('should handle keyDown step when key is not supported', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'keyDown' as const,
@@ -125,14 +112,12 @@ describe('StringifyExtension', () => {
       ],
     };
     const flow = { title: 'keyDown step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal('\n');
+    expect(writer.toString()).toBe('\n');
   });
 
-  it.skip('should correctly exports keyUp step', async () => {
+  it('should correctly exports keyUp step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'keyUp' as const,
@@ -147,21 +132,18 @@ describe('StringifyExtension', () => {
       ],
     };
     const flow = { title: 'keyUp step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(
-      `.perform(function() {
-          const actions = this.actions({async: true});
-
-          return actions
-          .keyUp(this.Keys.ENTER);
-        })\n`,
+    expect(writer.toString()).toBe(
+      'await browser.performActions([{\n' +
+      '  type: \'key\',\n' +
+      '  id: \'keyboard\',\n' +
+      '  actions: [{ type: \'keyUp\', value: \'ENTER\' }]\n' +
+      '}])\n'
     );
   });
 
-  it.skip('should correctly exports scroll step', async () => {
+  it('should correctly exports scroll step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'scroll' as const,
@@ -170,14 +152,12 @@ describe('StringifyExtension', () => {
       y: 805,
     };
     const flow = { title: 'scroll step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`.execute('scrollTo(0, 805)')\n`);
+    expect(writer.toString()).toBe(`await browser.execute(() => window.scrollTo(0, 805))\n`);
   });
 
-  it.skip('should correctly exports doubleClick step', async () => {
+  it('should correctly exports doubleClick step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'doubleClick' as const,
@@ -187,14 +167,12 @@ describe('StringifyExtension', () => {
       offsetY: 1,
     };
     const flow = { title: 'doubleClick step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`.doubleClick("#test")\n`);
+    expect(writer.toString()).toBe(`await browser.$("#test").doubleClick()\n`);
   });
 
-  it.skip('should correctly exports emulateNetworkConditions step', async () => {
+  it('should correctly exports emulateNetworkConditions step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'emulateNetworkConditions' as const,
@@ -203,20 +181,19 @@ describe('StringifyExtension', () => {
       latency: 2000,
     };
     const flow = { title: 'emulateNetworkConditions step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`
-    .setNetworkConditions({
-      offline: false,
-      latency: 2000,
-      download_throughput: 50000,
-      upload_throughput: 50000
-    })\n`);
+    expect(writer.toString()).toBe(
+      'await browser.setNetworkConditions({\n' +
+      '  offline: false,\n' +
+      '  latency: 2000,\n' +
+      '  download_throughput: 50000,\n' +
+      '  upload_throughput: 50000\n' +
+      '})\n'
+    )
   });
 
-  it.skip('should correctly exports waitForElement step if operator is "=="', async () => {
+  it('should correctly exports waitForElement step if operator is "=="', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'waitForElement' as const,
@@ -225,19 +202,15 @@ describe('StringifyExtension', () => {
       count: 2,
     };
     const flow = { title: 'waitForElement step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`
-      .waitForElementVisible("#test", function(result) {
-        if (result.value) {
-          browser.expect.elements("#test").count.to.equal(2);
-        }
-      })\n`);
+    expect(writer.toString()).toBe(
+      'await browser.$("#test").waitForExist()\n' +
+      'await expect(browser.$("#test")).toBeElementsArrayOfSize(2)\n'
+    );
   });
 
-  it.skip('should correctly exports waitForElement step with timeout', async () => {
+  it('should correctly exports waitForElement step with timeout', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'waitForElement' as const,
@@ -247,19 +220,15 @@ describe('StringifyExtension', () => {
       timeout: 2000,
     };
     const flow = { title: 'waitForElement step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`
-      .waitForElementVisible("#test", 2000, function(result) {
-        if (result.value) {
-          browser.expect.elements("#test").count.to.equal(2);
-        }
-      })\n`);
+    expect(writer.toString()).toBe(
+      'await browser.$("#test").waitForExist({ timeout: 2000 })\n' +
+      'await expect(browser.$("#test")).toBeElementsArrayOfSize(2)\n'
+    );
   });
 
-  it.skip('should correctly exports waitForElement step if operator is "<="', async () => {
+  it('should correctly exports waitForElement step if operator is "<="', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'waitForElement' as const,
@@ -268,21 +237,15 @@ describe('StringifyExtension', () => {
       count: 2,
     };
     const flow = { title: 'waitForElement step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`
-      .waitForElementVisible("#test", function(result) {
-        if (result.value) {
-          browser.elements('css selector', "#test", function (result) {
-            browser.assert.ok(result.value.length <= 2, 'element count is less than 2');
-          });
-        }
-      })\n`);
+    expect(writer.toString()).toBe(
+      'await browser.$("#test").waitForExist()\n' +
+      'await expect(browser.$("#test")).toBeElementsArrayOfSize({ lte: 2 })\n'
+    );
   });
 
-  it.skip('should correctly exports waitForElement step if operator is ">="', async () => {
+  it('should correctly exports waitForElement step if operator is ">="', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'waitForElement' as const,
@@ -291,31 +254,23 @@ describe('StringifyExtension', () => {
       count: 2,
     };
     const flow = { title: 'waitForElement step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`
-      .waitForElementVisible("#test", function(result) {
-        if (result.value) {
-          browser.elements('css selector', "#test", function (result) {
-            browser.assert.ok(result.value.length >= 2, 'element count is greater than 2');
-          });
-        }
-      })\n`);
+    expect(writer.toString()).toBe(
+      'await browser.$("#test").waitForExist()\n' +
+      'await expect(browser.$("#test")).toBeElementsArrayOfSize({ gte: 2 })\n'
+    );
   });
 
-  it.skip('should correctly add Hover Step', async () => {
+  it('should correctly add Hover Step', async () => {
     const ext = new StringifyExtension();
     const step = {
       type: 'hover' as const,
       selectors: ['#test'],
     };
     const flow = { title: 'Hover step', steps: [step] };
-
     const writer = new InMemoryLineWriter('  ');
     await ext.stringifyStep(writer, step, flow);
-
-    expect(writer.toString()).to.equal(`.moveToElement("#test", 0, 0)\n`);
+    expect(writer.toString()).to.equal(`await browser.$("#test").moveTo()\n`);
   });
 });
