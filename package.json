@@ -10,13 +10,12 @@
   ],
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
     "build": "tsc -p .",
-    "watch": "tsc -w",
-    "lint": "eslint '**/*.{js,ts}' --fix .",
-    "prettier": "prettier --write .",
-    "format": "npm run lint && npm run prettier",
-    "test": "vitest"
+    "clean": "rm -rf dist",
+    "test": "run-s test:*",
+    "test:lint": "eslint '**/*.{js,ts}' --fix .",
+    "test:unit": "vitest",
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -47,7 +46,9 @@
     "chai": "^4.3.6",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "npm-run-all": "^4.1.5",
     "release-it": "^15.3.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4",

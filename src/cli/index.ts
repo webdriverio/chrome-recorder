@@ -1,12 +1,13 @@
-import meow from 'meow';
-import inquirer from 'inquirer';
-import { InquirerAnswerTypes } from '../types';
-import { expandedFiles } from '../utils.js';
-import { DEFAULT_OUTPUT_FOLDER } from '../constants.js';
-import { runTransformsOnChromeRecording } from '../transform.js';
+import meow from 'meow'
+import inquirer from 'inquirer'
 
-const cli = meow(
-  `
+import { expandedFiles } from '../utils.js'
+import { DEFAULT_OUTPUT_FOLDER } from '../constants.js'
+import { runTransformsOnChromeRecording } from '../transform.js'
+import type { InquirerAnswerTypes } from '../types'
+
+const cli = meow(`
+
   Usage
     $ npx wdio-chrome-recorder <path-of-recording.json> [options]
 
@@ -19,68 +20,59 @@ const cli = meow(
 
     $ npx wdio-chrome-recorder recordings.json
     $ npx wdio-chrome-recorder recordings/*.json
-`,
-  {
+`, {
     importMeta: import.meta,
     flags: {
-      dry: {
-        type: 'boolean',
-      },
-      output: {
-        type: 'string',
-        alias: 'o',
-      },
+        dry: {
+            type: 'boolean',
+        },
+        output: {
+            type: 'string',
+            alias: 'o',
+        },
     },
-  },
-);
+})
 
-inquirer
-  .prompt([
+inquirer.prompt([
     {
-      type: 'input',
-      name: 'files',
-      message:
-        'Which directory or files should be translated from Recorder JSON to WebdriverIO?',
-      when: () => !cli.input.length,
-      default: '.',
-      filter(files: string) {
-        return new Promise((resolve) => {
-          resolve(files.split(/\s+/).filter((f) => f.trim().length > 0));
-        });
-      },
+        type: 'input',
+        name: 'files',
+        message:
+            'Which directory or files should be translated from Recorder JSON to WebdriverIO?',
+        when: () => !cli.input.length,
+        default: '.',
+        filter: (files: string) => files.split(/\s+/).filter((f) => f.trim().length > 0)
     },
     {
-      type: 'input',
-      name: 'outputPath',
-      message: 'Where should be exported files to be output?',
-      when: () => !cli.input.length,
-      default: DEFAULT_OUTPUT_FOLDER,
-    },
-  ])
-  .then((answers: InquirerAnswerTypes) => {
-    const { files: recordingFiles, outputPath: outputFolder } = answers;
-    const files = cli.input.length ? cli.input : recordingFiles;
-    const filesExpanded = expandedFiles(files);
+        type: 'input',
+        name: 'outputPath',
+        message: 'Where should be exported files to be output?',
+        when: () => !cli.input.length,
+        default: DEFAULT_OUTPUT_FOLDER,
+    }
+]).then((answers: InquirerAnswerTypes) => {
+    const { files: recordingFiles, outputPath: outputFolder } = answers
+    const files = cli.input.length ? cli.input : recordingFiles
+    const filesExpanded = expandedFiles(files)
 
     if (!filesExpanded) {
-      console.log(`No recording files found matching ${files.join(' ')}`);
-      return null;
+        console.log(`No recording files found matching ${files.join(' ')}`)
+        return null
     }
 
     const outputPath = cli.flags?.output?.length
-      ? cli.flags.output
-      : outputFolder;
+        ? cli.flags.output
+        : outputFolder
 
     return runTransformsOnChromeRecording({
-      files: filesExpanded,
-      outputPath: outputPath ?? DEFAULT_OUTPUT_FOLDER,
-      flags: cli.flags,
-    });
-  })
-  .catch((error) => {
+        files: filesExpanded,
+        outputPath: outputPath ?? DEFAULT_OUTPUT_FOLDER,
+        flags: cli.flags,
+    })
+}).catch((error) => {
     if (error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
+        // Prompt couldn't be rendered in the current environment
     } else {
-      console.error(error);
+        console.error(error)
     }
-  });
+})
