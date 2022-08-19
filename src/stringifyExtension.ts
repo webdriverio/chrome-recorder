@@ -1,4 +1,3 @@
-import { format } from 'node:util'
 import {
     ChangeStep,
     ClickStep,
@@ -107,7 +106,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         const pressedKey = step.key.toLowerCase() as keyof typeof SUPPORTED_KEYS
 
         if (!SUPPORTED_KEYS[pressedKey]) {
-            return console.error(format(KEY_NOT_SUPPORTED_ERROR, pressedKey))
+            return console.error(KEY_NOT_SUPPORTED_ERROR, pressedKey)
         }
 
         const keyValue = SUPPORTED_KEYS[pressedKey]
@@ -124,7 +123,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         const pressedKey = step.key.toLowerCase() as keyof typeof SUPPORTED_KEYS
 
         if (!SUPPORTED_KEYS[pressedKey]) {
-            return console.error(format(KEY_NOT_SUPPORTED_ERROR, pressedKey))
+            return console.error(KEY_NOT_SUPPORTED_ERROR, pressedKey)
         }
 
         const keyValue = SUPPORTED_KEYS[pressedKey]
