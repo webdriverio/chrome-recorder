@@ -16,19 +16,18 @@ import {
     UserFlow,
     WaitForElementStep,
 } from '@puppeteer/replay'
+import { formatAsJSLiteral } from './utils.js'
 import { SUPPORTED_KEYS, KEY_NOT_SUPPORTED_ERROR } from './constants.js'
 
-export class StringifyExtension extends PuppeteerStringifyExtension {
-    #formatAsJSLiteral(value: string) {
-        return JSON.stringify(value)
-    }
+const ARIA_PREFIX = 'aria/'
 
+export class StringifyExtension extends PuppeteerStringifyExtension {
     async beforeAllSteps(out: LineWriter, flow: UserFlow): Promise<void> {
         out
-            .appendLine(`describe(${this.#formatAsJSLiteral(flow.title)}, function () {`)
+            .appendLine(`describe(${formatAsJSLiteral(flow.title)}, function () {`)
             .startBlock()
         out
-            .appendLine(`it(${this.#formatAsJSLiteral(`tests ${flow.title}`)}, function () {`)
+            .appendLine(`it(${formatAsJSLiteral(`tests ${flow.title}`)}, function () {`)
             .startBlock()
     }
 
@@ -75,7 +74,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     }
 
     #appendNavigateStep(out: LineWriter, step: NavigateStep): void {
-        out.appendLine(`await browser.url(${this.#formatAsJSLiteral(step.url)})`)
+        out.appendLine(`await browser.url(${formatAsJSLiteral(step.url)})`)
     }
 
     #appendViewportStep(out: LineWriter, step: SetViewportStep): void {
@@ -98,7 +97,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     #appendChangeStep(out: LineWriter, step: ChangeStep, flow: UserFlow): void {
         const domSelector = this.getSelector(step.selectors, flow)
         if (domSelector) {
-            out.appendLine(`await browser.$(${domSelector}).setValue(${this.#formatAsJSLiteral(step.value)})`)
+            out.appendLine(`await browser.$(${domSelector}).setValue(${formatAsJSLiteral(step.value)})`)
         }
     }
 
@@ -219,8 +218,30 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
     }
 
     getSelector(selectors: Selector[], flow: UserFlow): string | undefined {
+        /**
+         * check if selector is a link, e.g.
+         * ```
+         * "selectors": [
+         *   [
+         *     "aria/Timeouts"
+         *   ],
+         *   [
+         *     "#__docusaurus > div.main-wrapper.docs-wrapper.docs-doc-page > div > aside > div > nav > ul > li:nth-child(4) > ul > li:nth-child(2) > a"
+         *   ]
+         * ],
+         * ```
+         * then use link selector
+         */
+        if (
+            Array.isArray(selectors[0]) && Array.isArray(selectors[1]) &&
+            selectors[0][0].startsWith(ARIA_PREFIX) &&
+            selectors[1][0].endsWith('> a')
+        ) {
+            return formatAsJSLiteral(`=${selectors[0][0].slice(ARIA_PREFIX.length)}`)
+        }
+
         // Remove Aria selectors
-        const nonAriaSelectors = this.filterArrayByString(selectors, 'aria/')
+        const nonAriaSelectors = this.filterArrayByString(selectors, ARIA_PREFIX)
 
         let preferredSelector
 
@@ -233,18 +254,18 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         }
 
         if (preferredSelector && preferredSelector[0]) {
-            return `${this.#formatAsJSLiteral(
+            return formatAsJSLiteral(
                 Array.isArray(preferredSelector[0])
                     ? preferredSelector[0][0]
                     : preferredSelector[0],
-            )}`
-        } else {
-            return `${this.#formatAsJSLiteral(
-                Array.isArray(nonAriaSelectors[0])
-                    ? nonAriaSelectors[0][0]
-                    : nonAriaSelectors[0],
-            )}`
+            )
         }
+
+        return formatAsJSLiteral(
+            Array.isArray(nonAriaSelectors[0])
+                ? nonAriaSelectors[0][0]
+                : nonAriaSelectors[0],
+        )
     }
 
     filterArrayByString(selectors: Selector[], filterValue: string): Selector[] {

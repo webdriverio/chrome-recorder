@@ -71,6 +71,24 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe('await browser.$("#heading").setValue("webdriverio")\n')
     })
 
+    it('should prefer link text selectors', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: 'change' as const,
+            value: 'webdriverio',
+            selectors: [[
+                'aria/Guides'
+            ], [
+                '#__docusaurus > div.main-wrapper.docs-wrapper.docs-doc-page > div > aside > div > nav > ul > li:nth-child(4) > div > a'
+            ]],
+            target: 'main',
+        }
+        const flow = { title: 'change step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe('await browser.$("=Guides").setValue("webdriverio")\n')
+    })
+
     it('should correctly exports keyDown step', async () => {
         const ext = new StringifyExtension()
         const step = {
