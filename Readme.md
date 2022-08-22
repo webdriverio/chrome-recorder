@@ -9,7 +9,7 @@ This repo provide tools to convert JSON user flows from [Google Chrome DevTools 
 💃 Users can also use a dry run to see the interim output of the recordings  
 👨‍💻 Programmatic API which users can use in their own project to create plugins or custom scripts.
 
-Alternatively, you can export JSON user flows as WebdriverIO test scripts straight away from Chrome DevTools with our [WebdriverIO Recorder Chrome extension](https://webdriver.io). 
+Alternatively, you can export JSON user flows as WebdriverIO test scripts straight away from Chrome DevTools with our [WebdriverIO Recorder Chrome extension](https://chrome.google.com/webstore/detail/webdriverio-chrome-record/pllimkccefnbmghgcikpjkmmcadeddfn). 
 
 ## 🏗 Installation
 
