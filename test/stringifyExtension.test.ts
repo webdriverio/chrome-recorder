@@ -35,13 +35,6 @@ describe('StringifyExtension', () => {
         const step = {
             type: 'navigate' as const,
             url: 'chrome://new-tab-page/',
-            assertedEvents: [
-                {
-                    type: 'navigation' as const,
-                    url: 'chrome://new-tab-page/',
-                    title: 'New Tab',
-                },
-            ],
         }
         const flow = { title: 'navigate step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
@@ -102,13 +95,6 @@ describe('StringifyExtension', () => {
             type: 'keyDown' as const,
             target: 'main',
             key: 'Enter' as Key,
-            assertedEvents: [
-                {
-                    type: 'navigation' as const,
-                    url: 'https://google.com',
-                    title: 'webdriverio - Google Search',
-                },
-            ],
         }
         const flow = { title: 'keyDown step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
@@ -128,13 +114,6 @@ describe('StringifyExtension', () => {
             type: 'keyDown' as const,
             target: 'main',
             key: 'KEY_DOESNT_EXIST' as Key,
-            assertedEvents: [
-                {
-                    type: 'navigation' as const,
-                    url: 'https://google.com',
-                    title: 'webdriverio - Google Search',
-                },
-            ],
         }
         const flow = { title: 'keyDown step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
@@ -147,14 +126,7 @@ describe('StringifyExtension', () => {
         const step = {
             type: 'keyUp' as const,
             target: 'main',
-            key: 'Enter' as Key,
-            assertedEvents: [
-                {
-                    type: 'navigation' as const,
-                    url: 'https://google.com',
-                    title: 'webdriverio - Google Search',
-                },
-            ],
+            key: 'Enter' as Key
         }
         const flow = { title: 'keyUp step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
@@ -297,5 +269,54 @@ describe('StringifyExtension', () => {
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
         expect(writer.toString()).to.equal('await browser.$("#test").moveTo()\n')
+    })
+
+    it('should correctly assert event after step', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: 'hover' as const,
+            selectors: ['#test'],
+            assertedEvents: [{
+                type: 'navigation' as const,
+                url: 'https://webdriver.io',
+                title: ''
+            }]
+        }
+        const flow = { title: 'Hover step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).to.equal(
+            'await browser.$("#test").moveTo()\n' +
+            'await expect(browser).toHaveUrl("https://webdriver.io")\n'
+        )
+    })
+
+    it('switches target if needed', async () => {
+        const ext = new StringifyExtension()
+        const stepA = {
+            type: 'click' as const,
+            target: 'main',
+            selectors: ['#test'],
+            offsetX: 1,
+            offsetY: 1,
+        }
+        const stepB = {
+            type: 'click' as const,
+            target: 'https://webdriver.io',
+            selectors: ['#test'],
+            offsetX: 1,
+            offsetY: 1,
+        }
+        const flow = { title: 'Hover step', steps: [stepA, stepB] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, stepA, flow)
+        await ext.stringifyStep(writer, stepB, flow)
+        expect(writer.toString()).to.equal(
+            'await browser.$("#test").click()\n' +
+            'await browser.switchToFrame(\n' +
+            '  await browser.$(\'iframe[src="https://webdriver.io"]\')\n' +
+            ')\n' +
+            'await browser.$("#test").click()\n'
+        )
     })
 })

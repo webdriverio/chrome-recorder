@@ -15,13 +15,17 @@ import {
     Step,
     UserFlow,
     WaitForElementStep,
+    WaitForExpressionStep
 } from '@puppeteer/replay'
 import { formatAsJSLiteral } from './utils.js'
 import { SUPPORTED_KEYS, KEY_NOT_SUPPORTED_ERROR } from './constants.js'
 
 const ARIA_PREFIX = 'aria/'
+const DEFAULT_TARGET = 'main'
 
 export class StringifyExtension extends PuppeteerStringifyExtension {
+    #target = DEFAULT_TARGET
+
     async beforeAllSteps(out: LineWriter, flow: UserFlow): Promise<void> {
         out
             .appendLine(`describe(${formatAsJSLiteral(flow.title)}, () => {`)
@@ -41,7 +45,9 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         step: Step,
         flow: UserFlow,
     ): Promise<void> {
+        this.#appendContext(out, step)
         this.#appendStepType(out, step, flow)
+        this.#appendAssertedEvents(out, step)
     }
 
     #appendStepType(out: LineWriter, step: Step, flow: UserFlow): void {
@@ -68,9 +74,41 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
             return this.#appendHoverStep(out, step, flow)
         case 'waitForElement':
             return this.#appendWaitForElementStep(out, step, flow)
+        case 'waitForExpression':
+            return this.#appendWaitExpressionStep(out, step)
         default:
             return this.logStepsNotImplemented(step)
         }
+    }
+
+    #appendAssertedEvents(out: LineWriter, step: Step) {
+        if (!step.assertedEvents || step.assertedEvents.length === 0) {
+            return
+        }
+
+        for (const event of step.assertedEvents) {
+            switch (event.type) {
+            case 'navigation':
+                if (event.url) {
+                    out.appendLine(`await expect(browser).toHaveUrl(${formatAsJSLiteral(event.url)})`)
+                }
+            }
+        }
+    }
+
+    #appendContext(out: LineWriter, step: Step) {
+        if (!step.target || step.target === this.#target) {
+            return
+        }
+
+        if (step.target === DEFAULT_TARGET) {
+            out.appendLine('await browser.switchToParentFrame()')
+            return
+        }
+
+        out.appendLine('await browser.switchToFrame(').startBlock()
+        out.appendLine(  `await browser.$('iframe[src="${step.target}"]')`).endBlock()
+        out.appendLine(')')
     }
 
     #appendNavigateStep(out: LineWriter, step: NavigateStep): void {
@@ -109,13 +147,11 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         }
 
         const keyValue = SUPPORTED_KEYS[pressedKey]
-        out.appendLine([
-            'await browser.performActions([{\n' +
-            '  type: \'key\',\n' +
-            '  id: \'keyboard\',\n' +
-            `  actions: [{ type: 'keyDown', value: '${keyValue}' }]\n` +
-            '}])'
-        ].join('\n'))
+        out.appendLine('await browser.performActions([{').startBlock()
+        out.appendLine(  'type: \'key\',')
+        out.appendLine(  'id: \'keyboard\',')
+        out.appendLine(  `actions: [{ type: 'keyDown', value: '${keyValue}' }]`).endBlock()
+        out.appendLine('}])')
     }
 
     #appendKeyUpStep(out: LineWriter, step: KeyUpStep): void {
@@ -126,13 +162,11 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         }
 
         const keyValue = SUPPORTED_KEYS[pressedKey]
-        out.appendLine([
-            'await browser.performActions([{\n' +
-            '  type: \'key\',\n' +
-            '  id: \'keyboard\',\n' +
-            `  actions: [{ type: 'keyUp', value: '${keyValue}' }]\n` +
-            '}])'
-        ].join('\n'))
+        out.appendLine('await browser.performActions([{').startBlock()
+        out.appendLine(  'type: \'key\',')
+        out.appendLine(  'id: \'keyboard\',')
+        out.appendLine(  `actions: [{ type: 'keyUp', value: '${keyValue}' }]`).endBlock()
+        out.appendLine('}])')
     }
 
     #appendScrollStep(out: LineWriter, step: ScrollStep, flow: UserFlow): void {
@@ -179,14 +213,12 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         out: LineWriter,
         step: EmulateNetworkConditionsStep,
     ): void {
-        out.appendLine([
-            'await browser.setNetworkConditions({\n' +
-            '  offline: false,\n' +
-            `  latency: ${step.latency},\n` +
-            `  download_throughput: ${step.download},\n` +
-            `  upload_throughput: ${step.upload}\n` +
-            '})'
-        ].join('\n'))
+        out.appendLine('await browser.setNetworkConditions({').startBlock()
+        out.appendLine(  'offline: false,')
+        out.appendLine(  `latency: ${step.latency},`)
+        out.appendLine(  `download_throughput: ${step.download},`)
+        out.appendLine(  `upload_throughput: ${step.upload}`).endBlock()
+        out.appendLine('})')
     }
 
     #appendWaitForElementStep(
@@ -215,6 +247,13 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
             out.appendLine(`await expect(browser.$(${domSelector})).toBeElementsArrayOfSize({ gte: ${step.count} })`)
             break
         }
+    }
+
+    #appendWaitExpressionStep(
+        out: LineWriter,
+        step: WaitForExpressionStep
+    ): void {
+        out.appendLine(`await browser.executeAsync(async () => ${step.expression})`)
     }
 
     getSelector(selectors: Selector[], flow: UserFlow): string | undefined {
