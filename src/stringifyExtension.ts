@@ -24,10 +24,10 @@ const ARIA_PREFIX = 'aria/'
 export class StringifyExtension extends PuppeteerStringifyExtension {
     async beforeAllSteps(out: LineWriter, flow: UserFlow): Promise<void> {
         out
-            .appendLine(`describe(${formatAsJSLiteral(flow.title)}, function () {`)
+            .appendLine(`describe(${formatAsJSLiteral(flow.title)}, () => {`)
             .startBlock()
         out
-            .appendLine(`it(${formatAsJSLiteral(`tests ${flow.title}`)}, function () {`)
+            .appendLine(`it(${formatAsJSLiteral(`tests ${flow.title}`)}, async () => {`)
             .startBlock()
     }
 

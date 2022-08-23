@@ -1,11 +1,18 @@
 import { describe, it, expect } from 'vitest'
-import { Key } from '@puppeteer/replay'
+import { Key, UserFlow } from '@puppeteer/replay'
 
 import { InMemoryLineWriter } from './InMemoryLineWriter.js'
 import { StringifyExtension } from '../src/stringifyExtension.js'
 
 
 describe('StringifyExtension', () => {
+    it('creates async tests', async () => {
+        const ext = new StringifyExtension()
+        const writer = new InMemoryLineWriter('  ')
+        await ext.beforeAllSteps(writer, { title: 'foobar' } as UserFlow)
+        expect(writer.toString()).toContain('it("tests foobar", async () => {')
+    })
+
     it('should correctly exports setViewport step', async () => {
         const ext = new StringifyExtension()
         const step = {
