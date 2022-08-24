@@ -60,6 +60,22 @@ describe('StringifyExtension', () => {
     it('should correctly exports change step', async () => {
         const ext = new StringifyExtension()
         const step = {
+            type: 'waitForExpression',
+            expression: 'document.querySelector(\'#someElem\').innerText === \' x 2\''
+        }
+        const flow = { title: 'change step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step as any, flow as any)
+        expect(writer.toString()).toBe(
+            'await browser.waitUntil(() => (\n' +
+            '  browser.execute(() => document.querySelector(\'#someElem\').innerText === \' x 2\')\n' +
+            ')\n'
+        )
+    })
+
+    it('supports waitForExpression', async () => {
+        const ext = new StringifyExtension()
+        const step = {
             type: 'change' as const,
             value: 'webdriverio',
             selectors: [['aria/Search'], ['#heading']],

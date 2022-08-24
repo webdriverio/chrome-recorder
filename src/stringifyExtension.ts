@@ -252,7 +252,9 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         out: LineWriter,
         step: WaitForExpressionStep
     ): void {
-        out.appendLine(`await browser.executeAsync(async () => ${step.expression})`)
+        out.appendLine('await browser.waitUntil(() => (').startBlock()
+        out.appendLine(  `browser.execute(() => ${step.expression})`).endBlock()
+        out.appendLine(')')
     }
 
     getSelector(selectors: Selector[], flow: UserFlow): string | undefined {
