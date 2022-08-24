@@ -69,7 +69,7 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe(
             'await browser.waitUntil(() => (\n' +
             '  browser.execute(() => document.querySelector(\'#someElem\').innerText === \' x 2\')\n' +
-            ')\n'
+            '))\n'
         )
     })
 
