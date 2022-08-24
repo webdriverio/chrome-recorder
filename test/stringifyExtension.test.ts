@@ -103,7 +103,7 @@ describe('StringifyExtension', () => {
             'await browser.performActions([{\n' +
             '  type: \'key\',\n' +
             '  id: \'keyboard\',\n' +
-            '  actions: [{ type: \'keyDown\', value: \'ENTER\' }]\n' +
+            '  actions: [{ type: \'keyDown\', value: \'\uE007\' }]\n' +
             '}])\n'
         )
     })
@@ -135,7 +135,7 @@ describe('StringifyExtension', () => {
             'await browser.performActions([{\n' +
             '  type: \'key\',\n' +
             '  id: \'keyboard\',\n' +
-            '  actions: [{ type: \'keyUp\', value: \'ENTER\' }]\n' +
+            '  actions: [{ type: \'keyUp\', value: \'\uE007\' }]\n' +
             '}])\n'
         )
     })
@@ -202,8 +202,7 @@ describe('StringifyExtension', () => {
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
         expect(writer.toString()).toBe(
-            'await browser.$("#test").waitForExist()\n' +
-            'await expect(browser.$("#test")).toBeElementsArrayOfSize(2)\n'
+            'await expect(browser.$$("#test")).toBeElementsArrayOfSize(2)\n'
         )
     })
 
@@ -220,8 +219,7 @@ describe('StringifyExtension', () => {
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
         expect(writer.toString()).toBe(
-            'await browser.$("#test").waitForExist({ timeout: 2000 })\n' +
-            'await expect(browser.$("#test")).toBeElementsArrayOfSize(2)\n'
+            'await expect(browser.$$("#test")).toBeElementsArrayOfSize(2, { timeout: 2000 })\n'
         )
     })
 
@@ -237,8 +235,7 @@ describe('StringifyExtension', () => {
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
         expect(writer.toString()).toBe(
-            'await browser.$("#test").waitForExist()\n' +
-            'await expect(browser.$("#test")).toBeElementsArrayOfSize({ lte: 2 })\n'
+            'await expect(browser.$$("#test")).toBeElementsArrayOfSize({ lte: 2 })\n'
         )
     })
 
@@ -254,8 +251,7 @@ describe('StringifyExtension', () => {
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
         expect(writer.toString()).toBe(
-            'await browser.$("#test").waitForExist()\n' +
-            'await expect(browser.$("#test")).toBeElementsArrayOfSize({ gte: 2 })\n'
+            'await expect(browser.$$("#test")).toBeElementsArrayOfSize({ gte: 2 })\n'
         )
     })
 
