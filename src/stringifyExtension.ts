@@ -278,6 +278,31 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
             return formatAsJSLiteral(`=${selectors[0][0].slice(ARIA_PREFIX.length)}`)
         }
 
+        /**
+         * check if selector is an element with text, e.g.
+         * ```
+         * "selectors": [
+         *   [
+         *     "aria/Flat White $18.00"
+         *   ],
+         *   [
+         *     "#app > div:nth-child(4) > ul > li:nth-child(5) > h4"
+         *   ]
+         * ],
+         * ```
+         * then use element with text selector: h4=Flat White $18.00
+         */
+        if (
+            Array.isArray(selectors[0]) && Array.isArray(selectors[1]) &&
+            selectors[0][0].startsWith(ARIA_PREFIX) &&
+            selectors[1][0].includes(' > ')
+        ) {
+            const tagName = selectors[1][0].split('>').pop()!.trim()
+                // replace "button:nth-child(1)" with "button"
+                .split(':')[0]
+            return formatAsJSLiteral(`${tagName}=${selectors[0][0].slice(ARIA_PREFIX.length)}`)
+        }
+
         // Remove Aria selectors
         const nonAriaSelectors = this.filterArrayByString(selectors, ARIA_PREFIX)
 

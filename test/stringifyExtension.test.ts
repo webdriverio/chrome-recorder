@@ -89,6 +89,42 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe('await browser.$("=Guides").setValue("webdriverio")\n')
     })
 
+    it('should fetch by text', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: 'change' as const,
+            value: 'webdriverio',
+            selectors: [[
+                'aria/Flat White $18.00'
+            ], [
+                '#app > div:nth-child(4) > ul > li:nth-child(5) > h4'
+            ]],
+            target: 'main',
+        }
+        const flow = { title: 'change step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe('await browser.$("h4=Flat White $18.00").setValue("webdriverio")\n')
+    })
+
+    it('should fetch by text with pseudo selector', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: 'change' as const,
+            value: 'webdriverio',
+            selectors: [[
+                'aria/Yes'
+            ], [
+                '[data-cy=add-to-cart-modal] > form > button:nth-child(1)'
+            ]],
+            target: 'main',
+        }
+        const flow = { title: 'change step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe('await browser.$("button=Yes").setValue("webdriverio")\n')
+    })
+
     it('should correctly exports keyDown step', async () => {
         const ext = new StringifyExtension()
         const step = {
