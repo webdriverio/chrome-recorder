@@ -2,7 +2,7 @@ WebdriverIO Chrome Recorder [![Build](https://github.com/webdriverio/chrome-reco
 [![npm][npm-badge]][npm]
 ===========================
 
-This repo provide tools to convert JSON user flows from [Google Chrome DevTools Recorder](https://goo.gle/devtools-recorder) to WebdriverIO test scripts programmatically.
+This repo provide tools to convert JSON user flows from [Google Chrome DevTools Recorder](https://goo.gle/devtools-recorder) to WebdriverIO test scripts programmatically (WebdriverIO `v7.24.0` or higher required).
 
 ✅ Converts multiple recordings to WebdriverIO tests in one go (out-of-the-box glob support)  
 🗂 User can pass their custom path to export tests.  

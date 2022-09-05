@@ -102,7 +102,7 @@ describe('StringifyExtension', () => {
         const flow = { title: 'change step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
-        expect(writer.toString()).toBe('await browser.$("=Guides").setValue("webdriverio")\n')
+        expect(writer.toString()).toBe('await browser.$("aria/Guides").setValue("webdriverio")\n')
     })
 
     it('should fetch by text', async () => {
@@ -120,7 +120,7 @@ describe('StringifyExtension', () => {
         const flow = { title: 'change step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
-        expect(writer.toString()).toBe('await browser.$("h4=Flat White $18.00").setValue("webdriverio")\n')
+        expect(writer.toString()).toBe('await browser.$("aria/Flat White $18.00").setValue("webdriverio")\n')
     })
 
     it('should fetch by text with pseudo selector', async () => {
@@ -138,7 +138,7 @@ describe('StringifyExtension', () => {
         const flow = { title: 'change step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
-        expect(writer.toString()).toBe('await browser.$("button=Yes").setValue("webdriverio")\n')
+        expect(writer.toString()).toBe('await browser.$("aria/Yes").setValue("webdriverio")\n')
     })
 
     it('should correctly exports keyDown step', async () => {

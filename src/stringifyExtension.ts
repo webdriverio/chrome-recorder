@@ -17,7 +17,7 @@ import {
     WaitForElementStep,
     WaitForExpressionStep
 } from '@puppeteer/replay'
-import { formatAsJSLiteral } from './utils.js'
+import { formatAsJSLiteral, findByCondition } from './utils.js'
 import { SUPPORTED_KEYS, KEY_NOT_SUPPORTED_ERROR } from './constants.js'
 
 const ARIA_PREFIX = 'aria/'
@@ -259,51 +259,22 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
 
     getSelector(selectors: Selector[], flow: UserFlow): string | undefined {
         /**
-         * check if selector is a link, e.g.
-         * ```
-         * "selectors": [
-         *   [
-         *     "aria/Timeouts"
-         *   ],
-         *   [
-         *     "#__docusaurus > div.main-wrapper.docs-wrapper.docs-doc-page > div > aside > div > nav > ul > li:nth-child(4) > ul > li:nth-child(2) > a"
-         *   ]
-         * ],
-         * ```
-         * then use link selector
+         * find by id first as it is the safest selector
          */
-        if (
-            Array.isArray(selectors[0]) && Array.isArray(selectors[1]) &&
-            selectors[0][0].startsWith(ARIA_PREFIX) &&
-            selectors[1][0].endsWith('> a')
-        ) {
-            return formatAsJSLiteral(`=${selectors[0][0].slice(ARIA_PREFIX.length)}`)
-        }
-
+        const idSelector = findByCondition(
+            selectors,
+            (s) => s.startsWith('#') && !s.includes(' ') && !s.includes('.') && !s.includes('>') && !s.includes('[') && !s.includes('~') && !s.includes(':')
+        )
+        if (idSelector) return idSelector
         /**
-         * check if selector is an element with text, e.g.
-         * ```
-         * "selectors": [
-         *   [
-         *     "aria/Flat White $18.00"
-         *   ],
-         *   [
-         *     "#app > div:nth-child(4) > ul > li:nth-child(5) > h4"
-         *   ]
-         * ],
-         * ```
-         * then use element with text selector: h4=Flat White $18.00
+         * use WebdriverIOs aria selector
+         * https://webdriver.io/docs/selectors#accessibility-name-selector
          */
-        if (
-            Array.isArray(selectors[0]) && Array.isArray(selectors[1]) &&
-            selectors[0][0].startsWith(ARIA_PREFIX) &&
-            selectors[1][0].includes(' > ')
-        ) {
-            const tagName = selectors[1][0].split('>').pop()!.trim()
-                // replace "button:nth-child(1)" with "button"
-                .split(':')[0]
-            return formatAsJSLiteral(`${tagName}=${selectors[0][0].slice(ARIA_PREFIX.length)}`)
-        }
+        const ariaSelector = findByCondition(
+            selectors,
+            (s) => s.startsWith(ARIA_PREFIX)
+        )
+        if (ariaSelector) return ariaSelector
 
         // Remove Aria selectors
         const nonAriaSelectors = this.filterArrayByString(selectors, ARIA_PREFIX)

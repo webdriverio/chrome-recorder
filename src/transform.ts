@@ -1,5 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import { constants } from 'node:fs'
 import { format } from 'prettier'
 import chalk from 'chalk'
 
@@ -19,7 +20,7 @@ export function formatParsedRecordingContent(
 }
 
 export async function runTransformsOnChromeRecording({ files, outputPath, flags }: TransformOpts) {
-    const outputFolder = path.join(__dirname, outputPath)
+    const outputFolder = path.resolve(__dirname, outputPath)
     const { dry } = flags
 
     return files.map(async (file) => {
@@ -28,9 +29,7 @@ export async function runTransformsOnChromeRecording({ files, outputPath, flags 
         )
 
         const recordingContent = await fs.readFile(file, 'utf-8')
-        const stringifiedFile = await stringifyChromeRecording(
-            recordingContent,
-        )
+        const stringifiedFile = await stringifyChromeRecording(recordingContent)
 
         if (!stringifiedFile) {
             return
@@ -57,9 +56,9 @@ export async function runTransformsOnChromeRecording({ files, outputPath, flags 
     })
 }
 
-async function exportFileToFolder({ stringifiedFile, testName, outputPath, outputFolder }: ExportToFile): Promise<any> {
+async function exportFileToFolder({ stringifiedFile, testName, outputPath, outputFolder }: ExportToFile): Promise<unknown> {
     const folderPath = path.join('.', outputPath)
-    const folderExists = await fs.access(folderPath, fs.constants.F_OK).then(
+    const folderExists = await fs.access(folderPath, constants.F_OK).then(
         () => true,
         () => false
     )
@@ -81,18 +80,18 @@ async function exportFileToFolder({ stringifiedFile, testName, outputPath, outpu
     }
 
     return fs.writeFile(
-        path.join(outputFolder, `/${testName}.js`),
+        path.join(outputFolder, `${testName}.js`),
         stringifiedFile
     ).then(() => {
         console.log(
             chalk.green(
-                `\n ✅ ${testName}.json exported to ${outputPath}/${testName}.js\n `,
+                `✅ ${testName}.json exported to ${outputPath}/${testName}.js\n `,
             ),
         )
     }, () => {
         console.log(
             chalk.red(
-                `\n 😭 Something went wrong exporting ${outputPath}/${testName}.js \n`,
+                `😭 Something went wrong exporting ${outputPath}/${testName}.js \n`,
             ),
         )
     })

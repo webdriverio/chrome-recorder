@@ -64,5 +64,4 @@ export const SUPPORTED_KEYS = {
     meta: '\uE03D'
 } as const
 
-export const DEFAULT_OUTPUT_FOLDER = 'wdio'
 export const KEY_NOT_SUPPORTED_ERROR = `key "%s" not supported (supported are ${Object.keys(SUPPORTED_KEYS).join(', ')}), please file an issue in https://github.com/webdriverio/chrome-recorder to let us know, so we can add support.`

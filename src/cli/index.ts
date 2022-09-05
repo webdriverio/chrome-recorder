@@ -1,10 +1,13 @@
+import url from 'node:url'
+import path from 'node:path'
 import meow from 'meow'
 import inquirer from 'inquirer'
 
 import { expandedFiles } from '../utils.js'
-import { DEFAULT_OUTPUT_FOLDER } from '../constants.js'
 import { runTransformsOnChromeRecording } from '../transform.js'
 import type { InquirerAnswerTypes } from '../types'
+
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 const cli = meow(`
 
@@ -40,7 +43,7 @@ inquirer.prompt([
         message:
             'Which directory or files should be translated from Recorder JSON to WebdriverIO?',
         when: () => !cli.input.length,
-        default: '.',
+        default: path.join(__dirname, '*.json'),
         filter: (files: string) => files.split(/\s+/).filter((f) => f.trim().length > 0)
     },
     {
@@ -48,7 +51,7 @@ inquirer.prompt([
         name: 'outputPath',
         message: 'Where should be exported files to be output?',
         when: () => !cli.input.length,
-        default: DEFAULT_OUTPUT_FOLDER,
+        default: process.cwd(),
     }
 ]).then((answers: InquirerAnswerTypes) => {
     const { files: recordingFiles, outputPath: outputFolder } = answers
@@ -66,7 +69,7 @@ inquirer.prompt([
 
     return runTransformsOnChromeRecording({
         files: filesExpanded,
-        outputPath: outputPath ?? DEFAULT_OUTPUT_FOLDER,
+        outputPath: outputPath ?? process.cwd(),
         flags: cli.flags,
     })
 }).catch((error) => {
