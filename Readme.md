@@ -134,21 +134,7 @@ npm run clean
 
 ## Supported Chrome Devtools Recorder Steps
 
-We only support following steps:
-
-1. `setViewport`
-2. `navigate`
-3. `click`
-4. `change`
-5. `keyDown`
-6. `keyUp`
-7. `scroll`
-8. `doubleClick`
-9. `hover`
-10. `emulateNetworkConditions`
-11. `waitForElement`
-
-If the step type is not mentioned above, a warning will be shown.
+WebdriverIO supports all existing [StepTypes](https://github.com/puppeteer/replay/blob/bcee5b54d94ae3fa1398c41d9166892da617eaad/docs/api/enums/Schema.StepType.md). If any step type seems to be missing, please raise an issue so we can add it. Thanks!
 
 [npm-badge]: https://img.shields.io/npm/v/@wdio/chrome-recorder.svg
 [npm]: https://www.npmjs.com/package/@wdio/chrome-recorder

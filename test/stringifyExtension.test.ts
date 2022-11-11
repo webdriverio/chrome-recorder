@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { Key, UserFlow } from '@puppeteer/replay'
+import { Key, UserFlow, StepType } from '@puppeteer/replay'
 
 import { InMemoryLineWriter } from './InMemoryLineWriter.js'
 import { StringifyExtension } from '../src/stringifyExtension.js'
@@ -16,7 +16,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports setViewport step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'setViewport' as const,
+            type: StepType.SetViewport as const,
             width: 1905,
             height: 223,
             deviceScaleFactor: 1,
@@ -33,7 +33,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports navigate step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'navigate' as const,
+            type: StepType.Navigate as const,
             url: 'chrome://new-tab-page/',
         }
         const flow = { title: 'navigate step', steps: [step] }
@@ -45,7 +45,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports click step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'click' as const,
+            type: StepType.Click as const,
             target: 'main',
             selectors: ['#test'],
             offsetX: 1,
@@ -60,7 +60,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports change step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'waitForExpression',
+            type: StepType.WaitForExpression,
             expression: 'document.querySelector(\'#someElem\').innerText === \' x 2\''
         }
         const flow = { title: 'change step', steps: [step] }
@@ -76,7 +76,7 @@ describe('StringifyExtension', () => {
     it('supports waitForExpression', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'change' as const,
+            type: StepType.Change as const,
             value: 'webdriverio',
             selectors: [['aria/Search'], ['#heading']],
             target: 'main',
@@ -90,7 +90,7 @@ describe('StringifyExtension', () => {
     it('should prefer link text selectors', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'change' as const,
+            type: StepType.Change as const,
             value: 'webdriverio',
             selectors: [[
                 'aria/Guides'
@@ -108,7 +108,7 @@ describe('StringifyExtension', () => {
     it('should fetch by text', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'change' as const,
+            type: StepType.Change as const,
             value: 'webdriverio',
             selectors: [[
                 'aria/Flat White $18.00'
@@ -126,7 +126,7 @@ describe('StringifyExtension', () => {
     it('should fetch by text with pseudo selector', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'change' as const,
+            type: StepType.Change as const,
             value: 'webdriverio',
             selectors: [[
                 'aria/Yes'
@@ -144,7 +144,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports keyDown step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'keyDown' as const,
+            type: StepType.KeyDown as const,
             target: 'main',
             key: 'Enter' as Key,
         }
@@ -163,7 +163,7 @@ describe('StringifyExtension', () => {
     it('should handle keyDown step when key is not supported', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'keyDown' as const,
+            type: StepType.KeyDown as const,
             target: 'main',
             key: 'KEY_DOESNT_EXIST' as Key,
         }
@@ -176,7 +176,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports keyUp step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'keyUp' as const,
+            type: StepType.KeyUp as const,
             target: 'main',
             key: 'Enter' as Key
         }
@@ -195,7 +195,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports scroll step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'scroll' as const,
+            type: StepType.Scroll as const,
             target: 'main',
             x: 0,
             y: 805,
@@ -209,7 +209,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports doubleClick step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'doubleClick' as const,
+            type: StepType.DoubleClick as const,
             target: 'main',
             selectors: [['aria/Test'], ['#test']],
             offsetX: 1,
@@ -224,7 +224,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports emulateNetworkConditions step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'emulateNetworkConditions' as const,
+            type: StepType.EmulateNetworkConditions as const,
             download: 50000,
             upload: 50000,
             latency: 2000,
@@ -245,7 +245,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports waitForElement step if operator is "=="', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'waitForElement' as const,
+            type: StepType.WaitForElement as const,
             selectors: ['#test'],
             operator: '==' as const,
             count: 2,
@@ -261,7 +261,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports waitForElement step with timeout', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'waitForElement' as const,
+            type: StepType.WaitForElement as const,
             selectors: ['#test'],
             operator: '==' as const,
             count: 2,
@@ -278,7 +278,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports waitForElement step if operator is "<="', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'waitForElement' as const,
+            type: StepType.WaitForElement as const,
             selectors: ['#test'],
             operator: '<=' as const,
             count: 2,
@@ -294,7 +294,7 @@ describe('StringifyExtension', () => {
     it('should correctly exports waitForElement step if operator is ">="', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'waitForElement' as const,
+            type: StepType.WaitForElement as const,
             selectors: ['#test'],
             operator: '>=' as const,
             count: 2,
@@ -310,7 +310,7 @@ describe('StringifyExtension', () => {
     it('should correctly add Hover Step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'hover' as const,
+            type: StepType.Hover as const,
             selectors: ['#test'],
         }
         const flow = { title: 'Hover step', steps: [step] }
@@ -322,7 +322,7 @@ describe('StringifyExtension', () => {
     it('should correctly assert event after step', async () => {
         const ext = new StringifyExtension()
         const step = {
-            type: 'hover' as const,
+            type: StepType.Hover as const,
             selectors: ['#test'],
             assertedEvents: [{
                 type: 'navigation' as const,
@@ -332,7 +332,7 @@ describe('StringifyExtension', () => {
         }
         const flow = { title: 'Hover step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
-        await ext.stringifyStep(writer, step, flow)
+        await ext.stringifyStep(writer, step as any, flow as any)
         expect(writer.toString()).to.equal(
             'await browser.$("#test").moveTo()\n' +
             'await expect(browser).toHaveUrl("https://webdriver.io")\n'
@@ -342,14 +342,14 @@ describe('StringifyExtension', () => {
     it('switches target if needed', async () => {
         const ext = new StringifyExtension()
         const stepA = {
-            type: 'click' as const,
+            type: StepType.Click as const,
             target: 'main',
             selectors: ['#test'],
             offsetX: 1,
             offsetY: 1,
         }
         const stepB = {
-            type: 'click' as const,
+            type: StepType.Click as const,
             target: 'https://webdriver.io',
             selectors: ['#test'],
             offsetX: 1,
