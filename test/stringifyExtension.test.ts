@@ -87,6 +87,20 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe('await browser.$("#heading").setValue("webdriverio")\n')
     })
 
+    it('should prefer xPath selector', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: StepType.Change as const,
+            value: 'webdriverio',
+            selectors: [['aria/Search'], ['xpath///*[@data-test="heading"]']],
+            target: 'main',
+        }
+        const flow = { title: 'change step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe('await browser.$("//*[@data-test=\\"heading\\"]").setValue("webdriverio")\n')
+    })
+
     it('should prefer link text selectors', async () => {
         const ext = new StringifyExtension()
         const step = {

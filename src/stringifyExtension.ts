@@ -22,6 +22,7 @@ import { formatAsJSLiteral, findByCondition } from './utils.js'
 import { SUPPORTED_KEYS, KEY_NOT_SUPPORTED_ERROR } from './constants.js'
 
 const ARIA_PREFIX = 'aria/'
+const XPATH_PREFIX = 'xpath/'
 const DEFAULT_TARGET = 'main'
 
 export class StringifyExtension extends PuppeteerStringifyExtension {
@@ -267,6 +268,16 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
             (s) => s.startsWith('#') && !s.includes(' ') && !s.includes('.') && !s.includes('>') && !s.includes('[') && !s.includes('~') && !s.includes(':')
         )
         if (idSelector) return idSelector
+
+        /**
+         * use xPath selector if available
+         */
+        const xPathSelector = findByCondition(
+            selectors,
+            (s) => s.startsWith(XPATH_PREFIX)
+        )
+        if (xPathSelector) return `"${xPathSelector.slice(XPATH_PREFIX.length + 1)}`
+
         /**
          * use WebdriverIOs aria selector
          * https://webdriver.io/docs/selectors#accessibility-name-selector
