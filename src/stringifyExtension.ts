@@ -270,16 +270,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         if (idSelector) return idSelector
 
         /**
-         * use xPath selector if available
-         */
-        const xPathSelector = findByCondition(
-            selectors,
-            (s) => s.startsWith(XPATH_PREFIX)
-        )
-        if (xPathSelector) return `"${xPathSelector.slice(XPATH_PREFIX.length + 1)}`
-
-        /**
-         * use WebdriverIOs aria selector
+         * Use WebdriverIOs aria selector as second option
          * https://webdriver.io/docs/selectors#accessibility-name-selector
          */
         const ariaSelector = findByCondition(
@@ -290,6 +281,15 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
 
         // Remove Aria selectors
         const nonAriaSelectors = this.filterArrayByString(selectors, ARIA_PREFIX)
+
+        /**
+         * use xPath selector if aria selector is not available
+         */
+        const xPathSelector = findByCondition(
+            selectors,
+            (s) => s.startsWith(XPATH_PREFIX)
+        )
+        if (xPathSelector) return `"${xPathSelector.slice(XPATH_PREFIX.length + 1)}`
 
         let preferredSelector
 
