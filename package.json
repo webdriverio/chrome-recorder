@@ -14,7 +14,7 @@
     "clean": "rm -rf dist",
     "test": "run-s test:*",
     "test:lint": "eslint '**/*.{js,ts}' --fix .",
-    "test:unit": "vitest",
+    "test:unit": "vitest --run",
     "watch": "tsc -w"
   },
   "repository": {
@@ -36,31 +36,31 @@
   },
   "homepage": "https://github.com/webdriverio/chrome-recorder#readme",
   "devDependencies": {
-    "@types/chai": "^4.3.4",
+    "@types/chai": "^4.3.5",
     "@types/inquirer": "^9.0.3",
-    "@types/node": "^18.11.9",
-    "@types/prettier": "^2.7.1",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "@vitest/coverage-c8": "^0.25.1",
+    "@types/node": "^20.2.3",
+    "@types/prettier": "^2.7.2",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "@vitest/coverage-c8": "^0.31.1",
     "chai": "^4.3.7",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
     "npm-run-all": "^4.1.5",
-    "release-it": "^15.5.0",
+    "release-it": "^15.10.3",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4",
-    "vitest": "^0.25.1"
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.1"
   },
   "dependencies": {
-    "@puppeteer/replay": "^2.2.0",
-    "chalk": "^5.1.2",
-    "globby": "^13.1.2",
-    "inquirer": "^9.1.4",
-    "meow": "^11.0.0",
-    "prettier": "^2.7.1"
+    "@puppeteer/replay": "^2.11.1",
+    "chalk": "^5.2.0",
+    "globby": "^13.1.4",
+    "inquirer": "^9.2.6",
+    "meow": "^12.0.1",
+    "prettier": "^2.8.8"
   },
   "publishConfig": {
     "access": "public"
