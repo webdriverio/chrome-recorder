@@ -87,7 +87,7 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe('await browser.$("#heading").setValue("webdriverio")\n')
     })
 
-    it('should prefer xPath selector', async () => {
+    it('should prefer aria selector over xpath', async () => {
         const ext = new StringifyExtension()
         const step = {
             type: StepType.Change as const,
@@ -98,7 +98,7 @@ describe('StringifyExtension', () => {
         const flow = { title: 'change step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
         await ext.stringifyStep(writer, step, flow)
-        expect(writer.toString()).toBe('await browser.$("//*[@data-test=\\"heading\\"]").setValue("webdriverio")\n')
+        expect(writer.toString()).toBe('await browser.$("aria/Search").setValue("webdriverio")\n')
     })
 
     it('should prefer link text selectors', async () => {
