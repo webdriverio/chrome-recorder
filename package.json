@@ -55,7 +55,7 @@
     "vitest": "^0.31.1"
   },
   "dependencies": {
-    "@puppeteer/replay": "^2.11.1",
+    "@puppeteer/replay": "^3.0.0",
     "chalk": "^5.2.0",
     "globby": "^14.0.1",
     "inquirer": "^9.2.6",
