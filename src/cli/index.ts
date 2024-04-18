@@ -31,7 +31,7 @@ const cli = meow(`
         },
         output: {
             type: 'string',
-            alias: 'o',
+            shortFlag: 'o',
         },
     },
 })
