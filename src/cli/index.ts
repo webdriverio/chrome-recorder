@@ -5,7 +5,7 @@ import inquirer from 'inquirer'
 
 import { expandedFiles } from '../utils.js'
 import { runTransformsOnChromeRecording } from '../transform.js'
-import type { InquirerAnswerTypes } from '../types'
+import type { InquirerAnswerTypes } from '../types.js'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 

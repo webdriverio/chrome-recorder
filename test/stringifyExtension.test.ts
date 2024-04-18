@@ -65,6 +65,7 @@ describe('StringifyExtension', () => {
         }
         const flow = { title: 'change step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await ext.stringifyStep(writer, step as any, flow as any)
         expect(writer.toString()).toBe(
             'await browser.waitUntil(() => (\n' +
@@ -346,6 +347,7 @@ describe('StringifyExtension', () => {
         }
         const flow = { title: 'Hover step', steps: [step] }
         const writer = new InMemoryLineWriter('  ')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await ext.stringifyStep(writer, step as any, flow as any)
         expect(writer.toString()).to.equal(
             'await browser.$("#test").moveTo()\n' +

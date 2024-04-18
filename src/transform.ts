@@ -11,7 +11,7 @@ const __dirname = path.resolve(path.dirname('.'))
 
 export function formatParsedRecordingContent(
     transformedRecordingContent: string,
-): string {
+): Promise<string> {
     return format(transformedRecordingContent, {
         semi: true,
         singleQuote: true,
@@ -35,7 +35,7 @@ export async function runTransformsOnChromeRecording({ files, outputPath, flags 
             return
         }
 
-        const formattedStringifiedFile = formatParsedRecordingContent(stringifiedFile)
+        const formattedStringifiedFile = await formatParsedRecordingContent(stringifiedFile)
         const fileName = file.split('/').pop()
         const testName = fileName ? fileName.replace('.json', '') : undefined
 

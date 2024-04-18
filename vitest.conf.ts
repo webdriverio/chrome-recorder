@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -13,10 +14,12 @@ export default defineConfig({
         coverage: {
             enabled: true,
             exclude: ['**/build/**', '**/__fixtures__/**', '**/*.test.ts'],
-            lines: 100,
-            functions: 100,
-            branches: 100,
-            statements: 100
+            thresholds: {
+                lines: 100,
+                functions: 100,
+                branches: 100,
+                statements: 100
+            }
         }
     }
 })
