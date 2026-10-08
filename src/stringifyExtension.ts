@@ -237,15 +237,16 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         }
 
         const opts = step.timeout ? `, { timeout: ${step.timeout} }` : ''
+        const count = step.count ?? 1
         switch (step.operator) {
         case '<=':
-            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ lte: ${step.count} }${opts})`)
+            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ lte: ${count} }${opts})`)
             break
         case '==':
-            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize(${step.count}${opts})`)
+            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize(${count}${opts})`)
             break
         case '>=':
-            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ gte: ${step.count} }${opts})`)
+            out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ gte: ${count} }${opts})`)
             break
         }
     }

@@ -322,6 +322,23 @@ describe('StringifyExtension', () => {
         )
     })
 
+    it.each([
+        ['==' as const, 'await expect(browser.$$("#test")).toBeElementsArrayOfSize(1)\n'],
+        ['<=' as const, 'await expect(browser.$$("#test")).toBeElementsArrayOfSize({ lte: 1 })\n'],
+        ['>=' as const, 'await expect(browser.$$("#test")).toBeElementsArrayOfSize({ gte: 1 })\n'],
+    ])('should default count to 1 in waitForElement step if operator is "%s"', async (operator, expected) => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: StepType.WaitForElement as const,
+            selectors: ['#test'],
+            operator,
+        }
+        const flow = { title: 'waitForElement step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe(expected)
+    })
+
     it('should correctly add Hover Step', async () => {
         const ext = new StringifyExtension()
         const step = {
