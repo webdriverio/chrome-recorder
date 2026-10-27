@@ -322,6 +322,21 @@ describe('StringifyExtension', () => {
         )
     })
 
+    it('should default operator to ">=" in waitForElement step if operator is omitted', async () => {
+        const ext = new StringifyExtension()
+        const step = {
+            type: StepType.WaitForElement as const,
+            selectors: ['#counter'],
+            count: 1,
+        }
+        const flow = { title: 'waitForElement step', steps: [step] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, step, flow)
+        expect(writer.toString()).toBe(
+            'await expect(browser.$$("#counter")).toBeElementsArrayOfSize({ gte: 1 })\n'
+        )
+    })
+
     it('should correctly add Hover Step', async () => {
         const ext = new StringifyExtension()
         const step = {

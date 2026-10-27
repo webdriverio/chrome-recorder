@@ -237,7 +237,7 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         }
 
         const opts = step.timeout ? `, { timeout: ${step.timeout} }` : ''
-        switch (step.operator) {
+        switch (step.operator ?? '>=') {
         case '<=':
             out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ lte: ${step.count} }${opts})`)
             break
