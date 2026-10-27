@@ -125,9 +125,14 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
         const domSelector = this.getSelector(step.selectors, flow)
 
         const hasRightButton = step.button && step.button === 'secondary'
+        const hasDuration = typeof step.duration === 'number'
         if (domSelector) {
-            hasRightButton
-                ? out.appendLine(`await browser.$(${domSelector}).click({ button: 'right' })`)
+            const clickOptions = [
+                ...(hasRightButton ? ['button: \'right\''] : []),
+                ...(hasDuration ? [`duration: ${step.duration}`] : []),
+            ]
+            clickOptions.length > 0
+                ? out.appendLine(`await browser.$(${domSelector}).click({ ${clickOptions.join(', ')} })`)
                 : out.appendLine(`await browser.$(${domSelector}).click()`)
             return
         }

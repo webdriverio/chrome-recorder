@@ -57,6 +57,35 @@ describe('StringifyExtension', () => {
         expect(writer.toString()).toBe('await browser.$("#test").click()\n')
     })
 
+    it('should correctly exports click step with duration and secondary button', async () => {
+        const ext = new StringifyExtension()
+        const durationStep = {
+            type: StepType.Click as const,
+            target: 'main',
+            selectors: ['#test'],
+            offsetX: 1,
+            offsetY: 1,
+            duration: 500,
+        }
+        const rightClickDurationStep = {
+            type: StepType.Click as const,
+            target: 'main',
+            selectors: ['#test'],
+            offsetX: 1,
+            offsetY: 1,
+            button: 'secondary' as const,
+            duration: 500,
+        }
+        const flow = { title: 'click step', steps: [durationStep, rightClickDurationStep] }
+        const writer = new InMemoryLineWriter('  ')
+        await ext.stringifyStep(writer, durationStep, flow)
+        await ext.stringifyStep(writer, rightClickDurationStep, flow)
+        expect(writer.toString()).toBe(
+            'await browser.$("#test").click({ duration: 500 })\n' +
+            'await browser.$("#test").click({ button: \'right\', duration: 500 })\n'
+        )
+    })
+
     it('should correctly exports change step', async () => {
         const ext = new StringifyExtension()
         const step = {
