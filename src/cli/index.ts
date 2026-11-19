@@ -44,7 +44,6 @@ inquirer.prompt([
             'Which directory or files should be translated from Recorder JSON to WebdriverIO?',
         when: () => !cli.input.length,
         default: path.join(__dirname, '*.json'),
-        filter: (files: string) => files.split(/\s+/).filter((f) => f.trim().length > 0)
     },
     {
         type: 'input',
@@ -55,7 +54,7 @@ inquirer.prompt([
     }
 ]).then((answers: InquirerAnswerTypes) => {
     const { files: recordingFiles, outputPath: outputFolder } = answers
-    const files = cli.input.length ? cli.input : recordingFiles
+    const files = cli.input.length ? cli.input : recordingFiles.split(/\s+/).filter(Boolean)
     const filesExpanded = expandedFiles(files)
 
     if (!filesExpanded) {

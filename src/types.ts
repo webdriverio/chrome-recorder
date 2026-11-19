@@ -1,5 +1,5 @@
 export interface InquirerAnswerTypes {
-  files: string[];
+  files: string;
   outputPath: string;
 }
 
