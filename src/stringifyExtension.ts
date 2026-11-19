@@ -25,6 +25,21 @@ const ARIA_PREFIX = 'aria/'
 const XPATH_PREFIX = 'xpath/'
 const DEFAULT_TARGET = 'main'
 
+// Recorder property filters describe a subset: unrelated keys on the DOM
+// object do not affect the match. Quote recorded keys and values as data.
+function propertyChecks(actual: string, expected: unknown): string[] {
+    if (expected === null || typeof expected !== 'object') {
+        return [`${actual} === ${JSON.stringify(expected)}`]
+    }
+    return [
+        `${actual} !== null`,
+        `typeof ${actual} === 'object'`,
+        ...Object.entries(expected).flatMap(([key, value]) =>
+            propertyChecks(`${actual}[${JSON.stringify(key)}]`, value)
+        ),
+    ]
+}
+
 export class StringifyExtension extends PuppeteerStringifyExtension {
     #target = DEFAULT_TARGET
 
@@ -234,9 +249,38 @@ export class StringifyExtension extends PuppeteerStringifyExtension {
             console.log(
                 `Warning: The WaitForElement on ${step.selectors} was not able to be exported to WebdriverIO. Please adjust your selectors and try again.`,
             )
+            return
         }
 
         const opts = step.timeout ? `, { timeout: ${step.timeout} }` : ''
+        const checks = [
+            ...Object.entries(step.attributes ?? {}).map(([name, value]) =>
+                `node.getAttribute(${JSON.stringify(name)}) === ${JSON.stringify(value)}`
+            ),
+            ...Object.entries(step.properties ?? {}).flatMap(([name, value]) =>
+                propertyChecks(`node[${JSON.stringify(name)}]`, value)
+            ),
+        ]
+
+        if (checks.length || step.visible === false) {
+            const operator = step.operator === '==' ? '===' : step.operator ?? '>='
+            const compareCount = `elements.length ${operator} ${step.count ?? 1}`
+            const visible = step.visible ?? true
+            out.appendLine('await browser.waitUntil(async () => {').startBlock()
+            out.appendLine(`const elements = await browser.$$(${domSelector})`)
+            if (checks.length) {
+                out.appendLine(`if (!(${compareCount})) return ${!visible}`)
+                out.appendLine('const matches = await browser.execute((nodes) => nodes.every((node) =>').startBlock()
+                checks.forEach((check, i) => out.appendLine(check + (i < checks.length - 1 ? ' &&' : '')))
+                out.endBlock().appendLine('), elements)')
+                out.appendLine(visible ? 'return matches' : 'return !matches')
+            } else {
+                out.appendLine(`return !(${compareCount})`)
+            }
+            out.endBlock().appendLine(`}${opts})`)
+            return
+        }
+
         switch (step.operator) {
         case '<=':
             out.appendLine(`await expect(browser.$$(${domSelector})).toBeElementsArrayOfSize({ lte: ${step.count} }${opts})`)
